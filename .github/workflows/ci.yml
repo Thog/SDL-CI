@@ -60,9 +60,9 @@ jobs:
           libgbm-dev\
           libpulse-dev
     - uses: actions/checkout@v2
-        with:
-          repository: libsdl-org/SDL
-          ref: ${{ github.event.inputs.rev }}
+      with:
+        repository: libsdl-org/SDL
+        ref: ${{ github.event.inputs.rev }}
     - name: Configure CMake
       run: cmake -B build ${{ matrix.platform.flags }} -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DSDL_SHARED_ENABLED_BY_DEFAULT=ON -DSDL_STATIC_ENABLED_BY_DEFAULT=ON
     - name: Build
@@ -114,15 +114,15 @@ jobs:
       - name: Pack Windows binaries
         run: |
           cd releases/windows &&
-          zip -r natives-windows.zip releases/windows
+          zip -r ../../natives-windows.zip .
       - name: Pack MacOS binaries
         run: |
           cd releases/macos &&
-          zip -r natives-macos.zip releases/macos
+          zip -r ../../natives-macos.zip .
       - name: Pack MacOS binaries
         run: |
           cd releases/linux &&
-          zip -r natives-linux.zip releases/linux
+          zip -r ../../natives-linux.zip .
       - name: Get current date and rev
         id: date
         run: |
@@ -150,7 +150,6 @@ jobs:
           draft: false
           prerelease: false
       - name: Upload Windows Release Asset
-        id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -160,7 +159,6 @@ jobs:
           asset_name:  natives-windows.zip
           asset_content_type: application/zip
       - name: Upload Linux Release Asset
-        id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -170,7 +168,6 @@ jobs:
           asset_name:  natives-linux.zip
           asset_content_type: application/zip
       - name: Upload MacOS Release Asset
-        id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
