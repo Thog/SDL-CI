@@ -1,0 +1,22 @@
+{
+  "name": "get-range",
+  "version": "1.0.0",
+  "description": "Simple Directmedia Layer",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/libsdl-org/SDL.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/libsdl-org/SDL/issues"
+  },
+  "homepage": "https://github.com/libsdl-org/SDL#readme",
+  "dependencies": {
+    "nodegit": "^0.27.0"
+  }
+}

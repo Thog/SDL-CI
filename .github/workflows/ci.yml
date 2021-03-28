@@ -1,0 +1,181 @@
+name: SDL2 Build
+on:
+  workflow_dispatch:
+    inputs:
+      prevRev:
+        description: 'Revision of the previous release'
+        required: false
+      rev:
+        description: 'libsdl-org/SDL commit to build'
+        required: true
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    name: ${{ matrix.platform.name }}
+    runs-on: ${{ matrix.platform.os }}
+    strategy:
+      matrix:
+        platform:
+        - { name: windows, os: windows-latest }
+        - { name: linux,   os: ubuntu-20.04, flags: -GNinja }
+        - { name: macos,   os: macos-latest }
+    steps:
+    - name: Setup Linux dependencies
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install wayland-protocols \
+          pkg-config \
+          ninja-build \
+          libasound2-dev \
+          libdbus-1-dev \
+          libegl1-mesa-dev \
+          libgl1-mesa-dev \
+          libgles2-mesa-dev \
+          libglu1-mesa-dev \
+          libibus-1.0-dev \
+          libpulse-dev \
+          libsdl2-2.0-0 \
+          libsndio-dev \
+          libudev-dev \
+          libwayland-dev \
+          libwayland-client++0 \
+          wayland-scanner++ \
+          libwayland-cursor++0 \
+          libx11-dev \
+          libxcursor-dev \
+          libxext-dev \
+          libxi-dev \
+          libxinerama-dev \
+          libxkbcommon-dev \
+          libxrandr-dev \
+          libxss-dev \
+          libxt-dev \
+          libxv-dev \
+          libxxf86vm-dev \
+          libdrm-dev \
+          libgbm-dev\
+          libpulse-dev
+    - uses: actions/checkout@v2
+        with:
+          repository: libsdl-org/SDL
+          ref: ${{ github.event.inputs.rev }}
+    - name: Configure CMake
+      run: cmake -B build ${{ matrix.platform.flags }} -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DSDL_SHARED_ENABLED_BY_DEFAULT=ON -DSDL_STATIC_ENABLED_BY_DEFAULT=ON
+    - name: Build
+      run: cmake --build build/ --config Release
+    - name: Install (Windows)
+      run: cmake --install build/ --prefix release_output --config Release
+      if: runner.os == 'Windows'
+    - name: Install
+      run: sudo cmake --install build/ --prefix release_output --config Release
+      if: runner.os != 'Windows'
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: natives-${{ matrix.platform.name }}
+        path: |
+          release_output/*
+  dist:
+    name: "Build SDL2 distributable zip"
+    needs: ["build"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: libsdl-org/SDL
+          ref: ${{ github.event.inputs.rev }}
+          fetch-depth: 0
+      - name: Download Windows binaries
+        uses: actions/download-artifact@v2
+        with:
+          name: natives-windows
+          path: releases/windows
+      - name: Download MacOS binaries
+        uses: actions/download-artifact@v2
+        with:
+          name: natives-macos
+          path: releases/macos
+      - name: Download Linux binaries
+        uses: actions/download-artifact@v2
+        with:
+          name: natives-linux
+          path: releases/linux
+      - name: Remove temporary artifacts
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          name: |
+            natives-windows
+            natives-macos
+            natives-linux
+      - name: Pack Windows binaries
+        run: |
+          cd releases/windows &&
+          zip -r natives-windows.zip releases/windows
+      - name: Pack MacOS binaries
+        run: |
+          cd releases/macos &&
+          zip -r natives-macos.zip releases/macos
+      - name: Pack MacOS binaries
+        run: |
+          cd releases/linux &&
+          zip -r natives-linux.zip releases/linux
+      - name: Get current date and rev
+        id: date
+        run: |
+          echo ::set-output name=date::$(date +'%Y-%m-%d')
+          echo ::set-output name=rev::$(git rev-parse --short HEAD)
+      - uses: actions/checkout@v2
+        with:
+          path: sdl-ci-thog
+      - name: Generate CHANGELOG.md
+        run: |
+          cd sdl-ci-thog
+          npm i
+          node generate_changelog.js ${{github.event.inputs.prevRev}} ${{github.event.inputs.rev}} > CHANGELOG.md
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.date.outputs.date }}
+          release_name: Release ${{ steps.date.outputs.date }}(${{ steps.date.outputs.rev }})
+          body_path: ./sdl-ci-thog/CHANGELOG.md
+          # TODO: This is a horrible hack.
+          commitish: "master"
+          draft: false
+          prerelease: false
+      - name: Upload Windows Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./natives-windows.zip
+          asset_name:  natives-windows.zip
+          asset_content_type: application/zip
+      - name: Upload Linux Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./natives-linux.zip
+          asset_name:  natives-linux.zip
+          asset_content_type: application/zip
+      - name: Upload MacOS Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./natives-macos.zip
+          asset_name:  natives-macos.zip
+          asset_content_type: application/zip
