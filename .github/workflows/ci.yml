@@ -33,7 +33,8 @@ jobs:
     - name: Setup Linux dependencies
       if: runner.os == 'Linux'
       run: |
-        sudo apt-get update
+        sudo dpkg --add-architecture i386
+        sudo apt-get update -y -qq
         sudo apt-get install wayland-protocols${{ matrix.platform.target_apt_arch }} \
           pkg-config${{ matrix.platform.target_apt_arch }} \
           ninja-build${{ matrix.platform.target_apt_arch }} \
