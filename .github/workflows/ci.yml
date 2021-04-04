@@ -217,14 +217,23 @@ jobs:
           asset_path: ./natives-windows-arm64.zip
           asset_name:  natives-windows-arm64.zip
           asset_content_type: application/zip
-      - name: Upload Linux Release Asset
+      - name: Upload Linux x64 Release Asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./natives-linux.zip
-          asset_name:  natives-linux.zip
+          asset_path: ./natives-linux-x64.zip
+          asset_name:  natives-linux-x64.zip
+          asset_content_type: application/zip
+      - name: Upload Linux x86 Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./natives-linux-x86.zip
+          asset_name:  natives-linux-x86.zip
           asset_content_type: application/zip
       - name: Upload MacOS Release Asset
         uses: actions/upload-release-asset@v1
