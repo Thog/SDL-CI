@@ -23,50 +23,50 @@ jobs:
     strategy:
       matrix:
         platform:
-        - { name: windows-x64,   os: windows-latest, flags: -A x64                                                                         }
-        - { name: windows-x86,   os: windows-latest, flags: -A Win32                                                                       }
-        - { name: windows-arm64, os: windows-latest, flags: -A ARM64                                                                       }
-        - { name: linux-x64,     os: ubuntu-20.04,   flags: -GNinja                                                                        }
-        - { name: linux-x86,     os: ubuntu-20.04,   flags: -GNinja, cmake_configure_env: CFLAGS=-m32 CXXFLAGS=-m32                        }
-        - { name: macos,         os: macos-latest,   flags: -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET="10.14" }
+        - { name: windows-x64,   os: windows-latest, flags: -A x64                                                                                                                             }
+        - { name: windows-x86,   os: windows-latest, flags: -A Win32                                                                                                                           }
+        - { name: windows-arm64, os: windows-latest, flags: -A ARM64                                                                                                                           }
+        - { name: linux-x64,     os: ubuntu-20.04,   flags: -GNinja , target_apt_arch: ":amd64"                                                                                                }
+        - { name: linux-x86,     os: ubuntu-20.04,   flags: -GNinja -DSDL_VIDEO_DRIVER_X11_SUPPORTS_GENERIC_EVENTS=1, cmake_configure_env: CFLAGS=-m32 CXXFLAGS=-m32, target_apt_arch: ":i386" }
+        - { name: macos,         os: macos-latest,   flags: -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET="10.14"                                                     }
     steps:
     - name: Setup Linux dependencies
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
-        sudo apt-get install wayland-protocols \
-          pkg-config \
-          ninja-build \
-          libasound2-dev \
-          libdbus-1-dev \
-          libegl1-mesa-dev \
-          libgl1-mesa-dev \
-          libgles2-mesa-dev \
-          libglu1-mesa-dev \
-          libibus-1.0-dev \
-          libpulse-dev \
-          libsdl2-2.0-0 \
-          libsndio-dev \
-          libudev-dev \
-          libwayland-dev \
-          libwayland-client++0 \
-          wayland-scanner++ \
-          libwayland-cursor++0 \
-          libx11-dev \
-          libxcursor-dev \
-          libxext-dev \
-          libxi-dev \
-          libxinerama-dev \
-          libxkbcommon-dev \
-          libxrandr-dev \
-          libxss-dev \
-          libxt-dev \
-          libxv-dev \
-          libxxf86vm-dev \
-          libdrm-dev \
+        sudo apt-get install wayland-protocols${{ matrix.platform.target_apt_arch }} \
+          pkg-config${{ matrix.platform.target_apt_arch }} \
+          ninja-build${{ matrix.platform.target_apt_arch }} \
+          libasound2-dev${{ matrix.platform.target_apt_arch }} \
+          libdbus-1-dev${{ matrix.platform.target_apt_arch }} \
+          libegl1-mesa-dev${{ matrix.platform.target_apt_arch }} \
+          libgl1-mesa-dev${{ matrix.platform.target_apt_arch }} \
+          libgles2-mesa-dev${{ matrix.platform.target_apt_arch }} \
+          libglu1-mesa-dev${{ matrix.platform.target_apt_arch }} \
+          libibus-1.0-dev${{ matrix.platform.target_apt_arch }} \
+          libpulse-dev${{ matrix.platform.target_apt_arch }} \
+          libsdl2-2.0-0${{ matrix.platform.target_apt_arch }} \
+          libsndio-dev${{ matrix.platform.target_apt_arch }} \
+          libudev-dev${{ matrix.platform.target_apt_arch }} \
+          libwayland-dev${{ matrix.platform.target_apt_arch }} \
+          libwayland-client++0${{ matrix.platform.target_apt_arch }} \
+          wayland-scanner++${{ matrix.platform.target_apt_arch }} \
+          libwayland-cursor++0${{ matrix.platform.target_apt_arch }} \
+          libx11-dev${{ matrix.platform.target_apt_arch }} \
+          libxcursor-dev${{ matrix.platform.target_apt_arch }} \
+          libxext-dev${{ matrix.platform.target_apt_arch }} \
+          libxi-dev${{ matrix.platform.target_apt_arch }} \
+          libxinerama-dev${{ matrix.platform.target_apt_arch }} \
+          libxkbcommon-dev${{ matrix.platform.target_apt_arch }} \
+          libxrandr-dev${{ matrix.platform.target_apt_arch }} \
+          libxss-dev${{ matrix.platform.target_apt_arch }} \
+          libxt-dev${{ matrix.platform.target_apt_arch }} \
+          libxv-dev${{ matrix.platform.target_apt_arch }} \
+          libxxf86vm-dev${{ matrix.platform.target_apt_arch }} \
+          libdrm-dev${{ matrix.platform.target_apt_arch }} \
           libgbm-dev\
-          libpulse-dev \
-          gcc-multilib \
+          libpulse-dev${{ matrix.platform.target_apt_arch }} \
+          gcc-multilib${{ matrix.platform.target_apt_arch }} \
           g++-multilib
     - uses: actions/checkout@v2
       with:
