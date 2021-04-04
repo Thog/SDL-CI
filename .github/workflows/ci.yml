@@ -64,7 +64,6 @@ jobs:
           libdrm-dev${{ matrix.platform.target_apt_arch }} \
           libgbm-dev${{ matrix.platform.target_apt_arch }} \
           libpulse-dev${{ matrix.platform.target_apt_arch }} \
-
           libwayland-client++0$ \
           libwayland-cursor++0$ \
           wayland-scanner++ \
