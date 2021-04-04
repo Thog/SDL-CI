@@ -65,7 +65,8 @@ jobs:
           libxxf86vm-dev \
           libdrm-dev \
           libgbm-dev\
-          libpulse-dev
+          libpulse-dev \
+          gcc-multilib
     - uses: actions/checkout@v2
       with:
         repository: libsdl-org/SDL
