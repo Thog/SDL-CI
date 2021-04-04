@@ -50,9 +50,6 @@ jobs:
           libsndio-dev${{ matrix.platform.target_apt_arch }} \
           libudev-dev${{ matrix.platform.target_apt_arch }} \
           libwayland-dev${{ matrix.platform.target_apt_arch }} \
-          libwayland-client++0${{ matrix.platform.target_apt_arch }} \
-          wayland-scanner++${{ matrix.platform.target_apt_arch }} \
-          libwayland-cursor++0${{ matrix.platform.target_apt_arch }} \
           libx11-dev${{ matrix.platform.target_apt_arch }} \
           libxcursor-dev${{ matrix.platform.target_apt_arch }} \
           libxext-dev${{ matrix.platform.target_apt_arch }} \
@@ -65,9 +62,13 @@ jobs:
           libxv-dev${{ matrix.platform.target_apt_arch }} \
           libxxf86vm-dev${{ matrix.platform.target_apt_arch }} \
           libdrm-dev${{ matrix.platform.target_apt_arch }} \
-          libgbm-dev\
+          libgbm-dev${{ matrix.platform.target_apt_arch }} \
           libpulse-dev${{ matrix.platform.target_apt_arch }} \
-          gcc-multilib${{ matrix.platform.target_apt_arch }} \
+
+          libwayland-client++0$ \
+          libwayland-cursor++0$ \
+          wayland-scanner++ \
+          gcc-multilib \
           g++-multilib
     - uses: actions/checkout@v2
       with:
