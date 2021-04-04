@@ -120,11 +120,16 @@ jobs:
         with:
           name: natives-macos
           path: releases/macos
-      - name: Download Linux binaries
+      - name: Download Linux x64 binaries
         uses: actions/download-artifact@v2
         with:
-          name: natives-linux
-          path: releases/linux
+          name: natives-linux-x64
+          path: releases/linux-x64
+      - name: Download Linux x86 binaries
+        uses: actions/download-artifact@v2
+        with:
+          name: natives-linux-x86
+          path: releases/linux-x86
       - name: Remove temporary artifacts
         uses: geekyeggo/delete-artifact@v1
         with:
