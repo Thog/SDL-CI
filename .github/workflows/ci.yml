@@ -23,11 +23,12 @@ jobs:
     strategy:
       matrix:
         platform:
-        - { name: windows-x64, os: windows-latest, flags: -A x64 }
-        - { name: windows-x86, os: windows-latest, flags: -A Win32 }
-        - { name: windows-arm64, os: windows-latest, flags: -A ARM64 }
-        - { name: linux,   os: ubuntu-20.04, flags: -GNinja }
-        - { name: macos,   os: macos-latest, flags: -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET="10.14" }
+        - { name: windows-x64,   os: windows-latest, flags: -A x64                                                                         }
+        - { name: windows-x86,   os: windows-latest, flags: -A Win32                                                                       }
+        - { name: windows-arm64, os: windows-latest, flags: -A ARM64                                                                       }
+        - { name: linux-x64,     os: ubuntu-20.04,   flags: -GNinja                                                                        }
+        - { name: linux-x86,     os: ubuntu-20.04,   flags: -GNinja, cmake_configure_env: CFLAGS=-m32 CXXFLAGS=-m32                        }
+        - { name: macos,         os: macos-latest,   flags: -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET="10.14" }
     steps:
     - name: Setup Linux dependencies
       if: runner.os == 'Linux'
@@ -70,7 +71,7 @@ jobs:
         repository: libsdl-org/SDL
         ref: ${{ github.event.inputs.rev }}
     - name: Configure CMake
-      run: cmake -B build ${{ matrix.platform.flags }} -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DSDL_SHARED_ENABLED_BY_DEFAULT=ON -DSDL_STATIC_ENABLED_BY_DEFAULT=ON
+      run:  ${{ matrix.platform.cmake_configure_env }} cmake -B build ${{ matrix.platform.flags }} -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DSDL_SHARED_ENABLED_BY_DEFAULT=ON -DSDL_STATIC_ENABLED_BY_DEFAULT=ON
     - name: Build
       run: cmake --build build/ --config Release
     - name: Install (Windows)
@@ -125,21 +126,36 @@ jobs:
         uses: geekyeggo/delete-artifact@v1
         with:
           name: |
-            natives-windows
+            natives-windows-x64
+            natives-windows-x86
+            natives-windows-arm64
             natives-macos
-            natives-linux
-      - name: Pack Windows binaries
+            natives-linux-x64
+            natives-linux-x86
+      - name: Pack Windows x64 binaries
         run: |
-          cd releases/windows &&
-          zip -r ../../natives-windows.zip .
+          cd releases/windows-x64 &&
+          zip -r ../../natives-windows-x64.zip .
+      - name: Pack Windows x86 binaries
+        run: |
+          cd releases/windows-x86 &&
+          zip -r ../../natives-windows-x86.zip .
+      - name: Pack Windows ARM64 binaries
+        run: |
+          cd releases/windows-arm64 &&
+          zip -r ../../natives-windows-arm64.zip .
       - name: Pack MacOS binaries
         run: |
           cd releases/macos &&
           zip -r ../../natives-macos.zip .
-      - name: Pack MacOS binaries
+      - name: Pack Linux x64 binaries
         run: |
-          cd releases/linux &&
-          zip -r ../../natives-linux.zip .
+          cd releases/linux-x64 &&
+          zip -r ../../natives-linux-x64.zip .
+      - name: Pack Linux x86 binaries
+        run: |
+          cd releases/linux-x86 &&
+          zip -r ../../natives-linux-x86.zip .
       - name: Get current date and rev
         id: date
         run: |
