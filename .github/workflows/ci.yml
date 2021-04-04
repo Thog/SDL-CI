@@ -25,7 +25,7 @@ jobs:
         platform:
         - { name: windows, os: windows-latest }
         - { name: linux,   os: ubuntu-20.04, flags: -GNinja }
-        - { name: macos,   os: macos-latest }
+        - { name: macos,   os: macos-latest, flags: -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" }
     steps:
     - name: Setup Linux dependencies
       if: runner.os == 'Linux'
