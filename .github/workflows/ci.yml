@@ -23,7 +23,9 @@ jobs:
     strategy:
       matrix:
         platform:
-        - { name: windows, os: windows-latest }
+        - { name: windows-x64, os: windows-latest, flags: -A x64 }
+        - { name: windows-x86, os: windows-latest, flags: -A Win32 }
+        - { name: windows-arm64, os: windows-latest, flags: -A ARM64 }
         - { name: linux,   os: ubuntu-20.04, flags: -GNinja }
         - { name: macos,   os: macos-latest, flags: -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" }
     steps:
@@ -94,11 +96,21 @@ jobs:
           repository: libsdl-org/SDL
           ref: ${{ github.event.inputs.rev }}
           fetch-depth: 0
-      - name: Download Windows binaries
+      - name: Download Windows x64 binaries
         uses: actions/download-artifact@v2
         with:
-          name: natives-windows
-          path: releases/windows
+          name: natives-windows-x64
+          path: releases/windows-x64
+      - name: Download Windows x86 binaries
+        uses: actions/download-artifact@v2
+        with:
+          name: natives-windows-x86
+          path: releases/windows-x86
+      - name: Download Windows ARM64 binaries
+        uses: actions/download-artifact@v2
+        with:
+          name: natives-windows-arm64
+          path: releases/windows-arm64
       - name: Download MacOS binaries
         uses: actions/download-artifact@v2
         with:
@@ -154,14 +166,31 @@ jobs:
           commitish: "master"
           draft: false
           prerelease: false
-      - name: Upload Windows Release Asset
+      - name: Upload Windows x64 Release Asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./natives-windows.zip
-          asset_name:  natives-windows.zip
+          asset_path: ./natives-windows-x64.zip
+          asset_name:  natives-windows-x64.zip
+          asset_content_type: application/zip
+      - name: Upload Windows x86 Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./natives-windows-x86.zip
+          asset_name:  natives-windows-x86.zip
+      - name: Upload Windows ARM64 Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./natives-windows-arm64.zip
+          asset_name:  natives-windows-arm64.zip
           asset_content_type: application/zip
       - name: Upload Linux Release Asset
         uses: actions/upload-release-asset@v1
