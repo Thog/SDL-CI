@@ -207,6 +207,7 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./natives-windows-x86.zip
           asset_name:  natives-windows-x86.zip
+          asset_content_type: application/zip
       - name: Upload Windows ARM64 Release Asset
         uses: actions/upload-release-asset@v1
         env:
